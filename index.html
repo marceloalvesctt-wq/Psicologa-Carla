@@ -1005,6 +1005,48 @@
   }
 </style>
 
+
+<script>
+  // ── ADMIN FUNCTIONS — global, no Firebase dependency for UI
+  function openAdmin() {
+    document.getElementById('adminOverlay').style.display = 'flex';
+    document.getElementById('adminErr').style.display = 'none';
+    if (typeof auth !== 'undefined' && auth && auth.currentUser) {
+      document.getElementById('adminLogin').style.display = 'none';
+      document.getElementById('adminContent').style.display = 'block';
+      loadLeads('todos');
+    } else {
+      document.getElementById('adminLogin').style.display = 'flex';
+      document.getElementById('adminContent').style.display = 'none';
+      document.getElementById('adminPwd').value = '';
+    }
+  }
+  function closeAdmin() {
+    document.getElementById('adminOverlay').style.display = 'none';
+  }
+  function checkAdmin() {
+    var email = document.getElementById('adminEmail').value.trim();
+    var pwd   = document.getElementById('adminPwd').value;
+    var btn   = document.getElementById('adminLoginBtn');
+    var errEl = document.getElementById('adminErr');
+    btn.disabled = true; btn.textContent = 'Entrando...'; errEl.style.display = 'none';
+    auth.signInWithEmailAndPassword(email, pwd)
+      .then(function() {
+        document.getElementById('adminLogin').style.display = 'none';
+        document.getElementById('adminContent').style.display = 'block';
+        loadLeads('todos');
+      })
+      .catch(function() { errEl.style.display = 'block'; })
+      .finally(function() { btn.disabled = false; btn.textContent = 'Entrar'; });
+  }
+  function adminLogout() {
+    auth.signOut().then(function() {
+      document.getElementById('adminContent').style.display = 'none';
+      document.getElementById('adminLogin').style.display = 'flex';
+      document.getElementById('adminPwd').value = '';
+    });
+  }
+</script>
 <!-- FIREBASE COMPAT -->
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js" crossorigin="anonymous"></script>
 <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js" crossorigin="anonymous"></script>
@@ -1109,49 +1151,6 @@
   }
 
   // ── ADMIN
-  function openAdmin() {
-    if (!auth) { alert('Carregando... tente novamente.'); return; }
-    document.getElementById('adminOverlay').style.display = 'flex';
-    document.getElementById('adminErr').style.display = 'none';
-    if (auth.currentUser) {
-      document.getElementById('adminLogin').style.display = 'none';
-      document.getElementById('adminContent').style.display = 'block';
-      loadLeads('todos');
-    } else {
-      document.getElementById('adminLogin').style.display = 'flex';
-      document.getElementById('adminContent').style.display = 'none';
-      document.getElementById('adminPwd').value = '';
-    }
-  }
-
-  function closeAdmin() {
-    document.getElementById('adminOverlay').style.display = 'none';
-  }
-
-  function checkAdmin() {
-    var email = document.getElementById('adminEmail').value.trim();
-    var pwd   = document.getElementById('adminPwd').value;
-    var btn   = document.getElementById('adminLoginBtn');
-    var errEl = document.getElementById('adminErr');
-    btn.disabled = true; btn.textContent = 'Entrando...'; errEl.style.display = 'none';
-    auth.signInWithEmailAndPassword(email, pwd)
-      .then(function() {
-        document.getElementById('adminLogin').style.display = 'none';
-        document.getElementById('adminContent').style.display = 'block';
-        loadLeads('todos');
-      })
-      .catch(function() { errEl.style.display = 'block'; })
-      .finally(function() { btn.disabled = false; btn.textContent = 'Entrar'; });
-  }
-
-  function adminLogout() {
-    auth.signOut().then(function() {
-      document.getElementById('adminContent').style.display = 'none';
-      document.getElementById('adminLogin').style.display = 'flex';
-      document.getElementById('adminPwd').value = '';
-    });
-  }
-
   function loadLeads(filtro) {
     document.querySelectorAll('.admin-tab').forEach(function(t) { t.classList.remove('active'); });
     var m = { 'todos':'tab-todos','Agendar primeira consulta':'tab-ag','Atendimento infantil / TEA':'tab-tea' };
@@ -1186,24 +1185,30 @@
 
 
 <script>
-  // ── SECRET ADMIN TRIGGER
-  // Mobile: pressiona logo por 1 segundo
-  // Desktop: pressiona tecla 'A' por 1 segundo
+  // ── SECRET ADMIN TRIGGER — URL ?admin ou long press
   var _pressTimer;
   document.addEventListener('DOMContentLoaded', function() {
+    // Abre pelo URL: psicologa-carla.vercel.app/?admin
+    if (window.location.search.includes('admin')) {
+      openAdmin();
+    }
+    // Long press no logo (backup)
     var logo = document.querySelector('.logo-wrap');
     if (logo) {
-      logo.addEventListener('touchstart', function(e) {
+      logo.addEventListener('touchstart', function() {
         _pressTimer = setTimeout(function() { openAdmin(); }, 3000);
       });
-      logo.addEventListener('touchend', function() { clearTimeout(_pressTimer); });
+      logo.addEventListener('touchend',  function() { clearTimeout(_pressTimer); });
       logo.addEventListener('touchmove', function() { clearTimeout(_pressTimer); });
       logo.addEventListener('mousedown', function() {
         _pressTimer = setTimeout(function() { openAdmin(); }, 3000);
       });
-      logo.addEventListener('mouseup', function() { clearTimeout(_pressTimer); });
+      logo.addEventListener('mouseup',   function() { clearTimeout(_pressTimer); });
+      logo.addEventListener('mouseleave',function() { clearTimeout(_pressTimer); });
     }
   });
+
+  function toggleMenu() {
     const btn  = document.getElementById('navHamburger');
     const menu = document.getElementById('navMobileMenu');
     btn.classList.toggle('open');
