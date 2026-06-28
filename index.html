@@ -1196,7 +1196,10 @@
     if (_secretCount >= 5) { _secretCount = 0; openAdmin(); return; }
     _secretTimer = setTimeout(function() { _secretCount = 0; }, 2000);
   }
-  document.querySelector('.logo-wrap').addEventListener('click', _secretTap);
+  document.addEventListener('DOMContentLoaded', function() {
+    var logo = document.querySelector('.logo-wrap');
+    if (logo) logo.addEventListener('click', _secretTap);
+  });
   document.addEventListener('keydown', function(e) {
     if (e.key === 'a' || e.key === 'A') _secretTap();
   });
