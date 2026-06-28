@@ -887,7 +887,7 @@
   <a href="https://wa.me/5513974053168" target="_blank">(13) 97405-3168</a> ·
   <a href="https://instagram.com/psi.carlaroalz" target="_blank">@psi.carlaroalz</a><br/>
   <span style="font-size:.7rem;color:#9CA3AF;margin-top:.5rem;display:block">© 2025 Todos os direitos reservados.</span>
-  <button onclick="openAdmin()" style="margin-top:1rem;background:none;border:none;color:#D1D5DB;font-size:.65rem;cursor:pointer;">admin</button>
+  <button onclick="openAdmin()" style="margin-top:1rem;background:none;border:none;color:transparent;font-size:.65rem;cursor:default;user-select:none;" aria-hidden="true">.</button>
 </footer>
 
 <a href="https://wa.me/5513974053168?text=Olá%2C+Carla!+Vim+pelo+site+e+gostaria+de+saber+mais." class="wa" target="_blank" aria-label="WhatsApp">💬</a>
@@ -1186,7 +1186,20 @@
 
 
 <script>
-  function toggleMenu() {
+  // ── SECRET ADMIN TRIGGER
+  // Mobile: tap logo 5 times quickly
+  // Desktop: press 'A' 5 times quickly
+  var _secretCount = 0, _secretTimer;
+  function _secretTap() {
+    _secretCount++;
+    clearTimeout(_secretTimer);
+    if (_secretCount >= 5) { _secretCount = 0; openAdmin(); return; }
+    _secretTimer = setTimeout(function() { _secretCount = 0; }, 2000);
+  }
+  document.querySelector('.logo-wrap').addEventListener('click', _secretTap);
+  document.addEventListener('keydown', function(e) {
+    if (e.key === 'a' || e.key === 'A') _secretTap();
+  });
     const btn  = document.getElementById('navHamburger');
     const menu = document.getElementById('navMobileMenu');
     btn.classList.toggle('open');
