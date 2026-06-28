@@ -1187,21 +1187,22 @@
 
 <script>
   // ── SECRET ADMIN TRIGGER
-  // Mobile: tap logo 5 times quickly
-  // Desktop: press 'A' 5 times quickly
-  var _secretCount = 0, _secretTimer;
-  function _secretTap() {
-    _secretCount++;
-    clearTimeout(_secretTimer);
-    if (_secretCount >= 5) { _secretCount = 0; openAdmin(); return; }
-    _secretTimer = setTimeout(function() { _secretCount = 0; }, 2000);
-  }
+  // Mobile: pressiona logo por 1 segundo
+  // Desktop: pressiona tecla 'A' por 1 segundo
+  var _pressTimer;
   document.addEventListener('DOMContentLoaded', function() {
     var logo = document.querySelector('.logo-wrap');
-    if (logo) logo.addEventListener('click', _secretTap);
-  });
-  document.addEventListener('keydown', function(e) {
-    if (e.key === 'a' || e.key === 'A') _secretTap();
+    if (logo) {
+      logo.addEventListener('touchstart', function(e) {
+        _pressTimer = setTimeout(function() { openAdmin(); }, 3000);
+      });
+      logo.addEventListener('touchend', function() { clearTimeout(_pressTimer); });
+      logo.addEventListener('touchmove', function() { clearTimeout(_pressTimer); });
+      logo.addEventListener('mousedown', function() {
+        _pressTimer = setTimeout(function() { openAdmin(); }, 3000);
+      });
+      logo.addEventListener('mouseup', function() { clearTimeout(_pressTimer); });
+    }
   });
     const btn  = document.getElementById('navHamburger');
     const menu = document.getElementById('navMobileMenu');
